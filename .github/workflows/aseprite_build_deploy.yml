@@ -1,56 +1,19 @@
-on: [push, pull_request]
+on: [push]
 
 jobs:
-  test-first-run:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os:
-        - windows-2019
+  example:
+    runs-on: windows-latest
     steps:
-    - uses: actions/checkout@v3
-    - id: prepare
-      run: bash ./prepare.sh
-      env:
-        NEOMURA_SETUP_ASEPRITE_CLI_ACTION_REPOSITORY: ${{ GITHUB.REPOSITORY }}
-        NEOMURA_SETUP_ASEPRITE_CLI_ACTION_REF: ${{ GITHUB.REF }}
-    - id: cache
-      uses: actions/cache@v2
-      with:
-        path: build/bin
-        key: neomura-setup-aseprite-cli-action-${{ GITHUB.REPOSITORY }}-${{ GITHUB.REF }}-${{ matrix.os }}-${{ steps.prepare.outputs.sha }}
+
+    # Load your repository.
+    - uses: actions/checkout@v2
+
+    # Install MSVC - only needed on Windows.
     - uses: ilammy/msvc-dev-cmd@v1
-    - run: bash ./build.sh
-    - run: bash ./install.sh
-    - uses: actions/setup-node@v3
-      with:
-        node-version: '14.x'
-        registry-url: 'https://registry.npmjs.org'
-    - run: bash ./test.sh
-  test-subsequent-run:
-    needs: test-first-run
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os:
-        - windows-2019
-    steps:
-    - uses: actions/checkout@v3
-    - id: prepare
-      run: bash ./prepare.sh
-      env:
-        NEOMURA_SETUP_ASEPRITE_CLI_ACTION_REPOSITORY: ${{ GITHUB.REPOSITORY }}
-        NEOMURA_SETUP_ASEPRITE_CLI_ACTION_REF: ${{ GITHUB.REF }}
-    - id: cache
-      uses: actions/cache@v2
-      with:
-        path: build/bin
-        key: neomura-setup-aseprite-cli-action-${{ GITHUB.REPOSITORY }}-${{ GITHUB.REF }}-${{ matrix.os }}-${{ steps.prepare.outputs.sha }}
-    - uses: ilammy/msvc-dev-cmd@v1
-    - run: bash ./build.sh
-    - run: bash ./install.sh
-    - uses: actions/setup-node@v3
-      with:
-        node-version: '14.x'
-        registry-url: 'https://registry.npmjs.org'
-    - run: bash ./test.sh
+
+    # Install this github action.
+    - uses: neomura/setup-aseprite-cli-action@v1.0.1
+
+    # Aseprite is now available on the path.
+    - run: aseprite --help
+      shell: bash
