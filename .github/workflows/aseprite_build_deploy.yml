@@ -35,6 +35,8 @@ jobs:
     - name: Load version from cache
       id: version_check
       uses: actions/cache@v2
+      env:
+        ACTIONS_ALLOW_UNSECURE_COMMANDS: 'true'
       with:
         path: ${{ steps.version_info.outputs.latest_tag }}.txt
         key: cached_version
@@ -67,6 +69,8 @@ jobs:
        fail-fast: false    
     steps:
       - name: (Windows) Install dependencies
+        env:
+        ACTIONS_ALLOW_UNSECURE_COMMANDS: 'true'
         if: matrix.os == 'windows-latest'
         uses: seanmiddleditch/gha-setup-ninja@v1
       - name: (Ubuntu) Install dependencies
@@ -78,10 +82,14 @@ jobs:
       - name: Get Skia from cache
         id: skia-cache
         uses: actions/cache@v2
+        env:
+            ACTIONS_ALLOW_UNSECURE_COMMANDS: 'true'
         with:
           path: skia
           key: skia-${{ matrix.os }}-cache
       - name: Download Skia if not in cache
+      env:
+        ACTIONS_ALLOW_UNSECURE_COMMANDS: 'true'
         if: steps.skia-cache.outputs.cache-hit != 'true'
         run: |
           curl -o Skia-${{ runner.os }}-Release-X64.zip -L https://github.com/aseprite/skia/releases/download/m81-b607b32047/Skia-${{ runner.os }}-Release-X64.zip
